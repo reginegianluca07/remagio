@@ -3,144 +3,206 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>I Tre Re Magi in viaggio</title>
+<title>Tre Re Magi Adventure</title>
 
 <style>
-body {
-margin: 0;
-overflow: hidden;
-font-family: Arial, sans-serif;
-background: linear-gradient(to top, #0b1d3a, #1e3c72);
+body{
+margin:0;
+overflow:hidden;
+background:linear-gradient(#6ec6ff,#dff6ff);
 }
 
-#scene {
-position: relative;
-width: 100vw;
-height: 100vh;
-}
-
-.stella {
-position: absolute;
-top: 30px;
-right: 80px;
-font-size: 50px;
-color: gold;
-animation: lampeggia 1.5s infinite;
-}
-
-@keyframes lampeggia {
-50% { opacity: 0.4; }
-}
-
-.magi {
-position: absolute;
-bottom: 80px;
-left: -250px;
-font-size: 40px;
-animation: cammino 20s linear forwards;
-}
-
-@keyframes cammino {
-from { left: -250px; }
-to { left: 70%; }
-}
-
-.capanna {
-position: absolute;
-bottom: 50px;
-right: 80px;
-font-size: 90px;
-}
-
-.gesu {
-position: absolute;
-bottom: 60px;
-right: 120px;
-font-size: 35px;
-}
-
-/* Pioggia */
-.rain {
-position: absolute;
-width: 2px;
-height: 20px;
-background: lightblue;
-animation: pioggia 1s linear infinite;
-}
-
-@keyframes pioggia {
-from {
-transform: translateY(-100vh);
-}
-to {
-transform: translateY(100vh);
-}
-}
-
-/* Neve */
-.snow {
-position: absolute;
-color: white;
-animation: neve 8s linear infinite;
-}
-
-@keyframes neve {
-from {
-transform: translateY(-50px);
-}
-to {
-transform: translateY(100vh);
-}
-}
-
-.testo {
-position: absolute;
-top: 20px;
-left: 20px;
-color: white;
-font-size: 24px;
+canvas{
+display:block;
+margin:auto;
+background:#87CEEB;
+border:3px solid black;
 }
 </style>
 </head>
-
 <body>
 
-<div id="scene">
-<div class="testo">
-I Tre Re Magi affrontano pioggia, neve e vento per raggiungere Gesù Bambino.
-</div>
-
-<div class="stella">⭐</div>
-
-<div class="magi">👑🐪 👑🐪 👑🐪</div>
-
-<div class="capanna">🏠</div>
-<div class="gesu">👶</div>
-</div>
+<canvas id="game" width="1000" height="500"></canvas>
 
 <script>
-// Pioggia
-for(let i = 0; i < 100; i++){
-let rain = document.createElement("div");
-rain.classList.add("rain");
-rain.style.left = Math.random() * window.innerWidth + "px";
-rain.style.animationDuration = (0.5 + Math.random()) + "s";
-document.getElementById("scene").appendChild(rain);
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const player = {
+x:50,
+y:380,
+w:40,
+h:60,
+dx:0,
+dy:0,
+speed:5,
+jump:15,
+grounded:false
+};
+
+const gravity = 0.8;
+
+const keys = {};
+
+const obstacles = [
+{x:250,y:430,w:50,h:70},
+{x:500,y:400,w:80,h:100},
+{x:750,y:420,w:60,h:80}
+];
+
+const stars = [
+{x:180,y:250,collected:false},
+{x:450,y:200,collected:false},
+{x:700,y:180,collected:false}
+];
+
+const goal = {
+x:900,
+y:350,
+w:60,
+h:120
+};
+
+let score = 0;
+let win = false;
+
+document.addEventListener("keydown",e=>{
+keys[e.key]=true;
+});
+
+document.addEventListener("keyup",e=>{
+keys[e.key]=false;
+});
+
+function update(){
+
+if(win) return;
+
+if(keys["ArrowRight"]) player.dx = player.speed;
+else if(keys["ArrowLeft"]) player.dx = -player.speed;
+else player.dx = 0;
+
+if((keys["ArrowUp"] || keys[" "]) && player.grounded){
+player.dy = -player.jump;
+player.grounded = false;
 }
 
-// Neve
-for(let i = 0; i < 40; i++){
-let snow = document.createElement("div");
-snow.classList.add("snow");
-snow.innerHTML = "❄";
-snow.style.left = Math.random() * window.innerWidth + "px";
-snow.style.fontSize = (10 + Math.random()*20) + "px";
-snow.style.animationDuration = (5 + Math.random()*5) + "s";
-document.getElementById("scene").appendChild(snow);
+player.dy += gravity;
+
+player.x += player.dx;
+player.y += player.dy;
+
+if(player.y + player.h >= 490){
+player.y = 490 - player.h;
+player.dy = 0;
+player.grounded = true;
 }
+
+obstacles.forEach(o=>{
+
+if(
+player.x < o.x + o.w &&
+player.x + player.w > o.x &&
+player.y < o.y + o.h &&
+player.y + player.h > o.y
+){
+
+if(player.dy > 0){
+player.y = o.y - player.h;
+player.dy = 0;
+player.grounded = true;
+}
+}
+});
+
+stars.forEach(s=>{
+if(!s.collected &&
+player.x < s.x+20 &&
+player.x+player.w > s.x &&
+player.y < s.y+20 &&
+player.y+player.h > s.y){
+s.collected = true;
+score++;
+}
+});
+
+if(
+player.x < goal.x + goal.w &&
+player.x + player.w > goal.x &&
+player.y < goal.y + goal.h &&
+player.y + player.h > goal.y
+){
+win = true;
+}
+}
+
+function draw(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+// cielo
+ctx.fillStyle="#87CEEB";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+// terreno
+ctx.fillStyle="#228B22";
+ctx.fillRect(0,490,1000,10);
+
+// ostacoli
+ctx.fillStyle="#777";
+obstacles.forEach(o=>{
+ctx.fillRect(o.x,o.y,o.w,o.h);
+});
+
+// stelle
+stars.forEach(s=>{
+if(!s.collected){
+ctx.font="24px Arial";
+ctx.fillText("⭐",s.x,s.y);
+}
+});
+
+// giocatore (Re Magio)
+ctx.fillStyle="gold";
+ctx.fillRect(player.x,player.y,player.w,player.h);
+
+ctx.fillStyle="black";
+ctx.fillText("👑",player.x+5,player.y+25);
+
+// Gesù Bambino
+ctx.font="50px Arial";
+ctx.fillText("👶",goal.x,goal.y+60);
+
+// Capanna
+ctx.font="70px Arial";
+ctx.fillText("🏠",goal.x-20,goal.y+20);
+
+ctx.fillStyle="black";
+ctx.font="24px Arial";
+ctx.fillText("Stelle: "+score+"/3",20,30);
+
+if(win){
+ctx.fillStyle="rgba(0,0,0,0.7)";
+ctx.fillRect(0,0,1000,500);
+
+ctx.fillStyle="white";
+ctx.font="40px Arial";
+ctx.fillText(
+"Hai raggiunto Gesù Bambino!",
+250,
+250
+);
+}
+}
+
+function gameLoop(){
+update();
+draw();
+requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
 </script>
 
 </body>
 </html>
-
-
