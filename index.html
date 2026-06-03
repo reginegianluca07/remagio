@@ -1,1 +1,146 @@
-<html></html>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I Tre Re Magi in viaggio</title>
+
+<style>
+body {
+margin: 0;
+overflow: hidden;
+font-family: Arial, sans-serif;
+background: linear-gradient(to top, #0b1d3a, #1e3c72);
+}
+
+#scene {
+position: relative;
+width: 100vw;
+height: 100vh;
+}
+
+.stella {
+position: absolute;
+top: 30px;
+right: 80px;
+font-size: 50px;
+color: gold;
+animation: lampeggia 1.5s infinite;
+}
+
+@keyframes lampeggia {
+50% { opacity: 0.4; }
+}
+
+.magi {
+position: absolute;
+bottom: 80px;
+left: -250px;
+font-size: 40px;
+animation: cammino 20s linear forwards;
+}
+
+@keyframes cammino {
+from { left: -250px; }
+to { left: 70%; }
+}
+
+.capanna {
+position: absolute;
+bottom: 50px;
+right: 80px;
+font-size: 90px;
+}
+
+.gesu {
+position: absolute;
+bottom: 60px;
+right: 120px;
+font-size: 35px;
+}
+
+/* Pioggia */
+.rain {
+position: absolute;
+width: 2px;
+height: 20px;
+background: lightblue;
+animation: pioggia 1s linear infinite;
+}
+
+@keyframes pioggia {
+from {
+transform: translateY(-100vh);
+}
+to {
+transform: translateY(100vh);
+}
+}
+
+/* Neve */
+.snow {
+position: absolute;
+color: white;
+animation: neve 8s linear infinite;
+}
+
+@keyframes neve {
+from {
+transform: translateY(-50px);
+}
+to {
+transform: translateY(100vh);
+}
+}
+
+.testo {
+position: absolute;
+top: 20px;
+left: 20px;
+color: white;
+font-size: 24px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="scene">
+<div class="testo">
+I Tre Re Magi affrontano pioggia, neve e vento per raggiungere Gesù Bambino.
+</div>
+
+<div class="stella">⭐</div>
+
+<div class="magi">👑🐪 👑🐪 👑🐪</div>
+
+<div class="capanna">🏠</div>
+<div class="gesu">👶</div>
+</div>
+
+<script>
+// Pioggia
+for(let i = 0; i < 100; i++){
+let rain = document.createElement("div");
+rain.classList.add("rain");
+rain.style.left = Math.random() * window.innerWidth + "px";
+rain.style.animationDuration = (0.5 + Math.random()) + "s";
+document.getElementById("scene").appendChild(rain);
+}
+
+// Neve
+for(let i = 0; i < 40; i++){
+let snow = document.createElement("div");
+snow.classList.add("snow");
+snow.innerHTML = "❄";
+snow.style.left = Math.random() * window.innerWidth + "px";
+snow.style.fontSize = (10 + Math.random()*20) + "px";
+snow.style.animationDuration = (5 + Math.random()*5) + "s";
+document.getElementById("scene").appendChild(snow);
+}
+</script>
+
+</body>
+</html>
+
+
